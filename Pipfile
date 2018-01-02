@@ -11,6 +11,8 @@ flask = "*"
 flask-mongoengine = "*"
 flask-bcrypt = "*"
 flask-cors = "*"
+flask-debugtoolbar = "*"
+pymongo = "==3.5.1"# https://github.com/MongoEngine/flask-mongoengine/issues/325
 
 
 [dev-packages]

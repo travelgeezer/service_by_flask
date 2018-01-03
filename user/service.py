@@ -6,7 +6,7 @@ from datetime import datetime
 from flask import Blueprint, request
 from flask_mongoengine.wtf import model_form
 from .models import User
-
+from Crypto import Crypto
 
 UserForm = model_form(User)
 

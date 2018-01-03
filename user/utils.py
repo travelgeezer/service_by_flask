@@ -1,21 +1,27 @@
 # -*- coding: utf-8 -*-
+import os
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA
 from Crypto import Random
 from Crypto.Cipher import AES
-import base64
 
-with open('./rsa_public_key_2048.pem', 'r') as f:
+dir_path = os.path.dirname(__file__)
+rsa_public_key_2048_path = os.path.join(dir_path, 'rsa_public_key_2048.pem')
+pkcs8_rsa_private_key_2048_path = os.path.join(dir_path, 'pkcs8_rsa_private_key_2048.pem')
+
+with open(rsa_public_key_2048_path, 'r') as f:
     pub = f.read()
 
-with open('./pkcs8_rsa_private_key_2048.pem', 'r') as f:
+
+with open(pkcs8_rsa_private_key_2048_path, 'r') as f:
     pri = f.read()
 
+public_key = pub
+private_key = pri
 
 def encrypt(pub, message):
     ret = b''
-
     input_text = message[:128]
     while input_text:
         key =  RSA.importKey(pub)

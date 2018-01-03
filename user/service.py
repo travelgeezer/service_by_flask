@@ -2,11 +2,10 @@
 
 import json
 from datetime import datetime
-
+from .utils import decrypt, private_key, public_key
 from flask import Blueprint, request
 from flask_mongoengine.wtf import model_form
 from .models import User
-from Crypto import Crypto
 
 UserForm = model_form(User)
 
@@ -19,6 +18,10 @@ def register():
     user_name = data.get('name')
     user_account = data.get('account')
     user_password = data.get('password')
+    try:
+        print(decrypt(private_key, user_password.encode('utf-8')))
+    except Exception:
+        print('decrypt error')
 
     if not user_name or not user_account or not user_password:
         return 'Missing parameters'

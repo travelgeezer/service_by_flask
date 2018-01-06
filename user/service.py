@@ -27,7 +27,8 @@ def register():
         return 'Missing parameters'
 
     try:
-        User.objects.get(user_account__nin=user_account)
+        a =   User.objects.get(user_account=user_account)
+        print(a.user_account)
         return 'user exist'
     except User.DoesNotExist:
         pass
@@ -41,7 +42,7 @@ def register():
              update_time=datetime.now())
     u.save()
 
-    return 'name: {}, account: {}, password: {}'.format(user_name, user_account, user_password)
+    return 'name: {0}, account: {1}, password: {2}'.format(user_name, user_account, user_password)
 
 
 

@@ -47,5 +47,5 @@ def decrypt(pri, cipher_text):
 
 
 def test_crypt():
-    msg = decrypt(pri, encrypt(pub, 'jfdhf'))
+    msg = decrypt(pri, encrypt(pub, 'qqq123'))
     print(msg)

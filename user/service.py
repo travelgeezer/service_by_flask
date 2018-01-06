@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import base64
 from datetime import datetime
 from .utils import decrypt, private_key, public_key
 from flask import Blueprint, request
@@ -13,13 +14,12 @@ user = Blueprint('user', __name__)
 
 @user.route('/api/v1/register', methods=['POST'])
 def register():
-
     data = request.get_json()
     user_name = data.get('name')
     user_account = data.get('account')
     user_password = data.get('password')
     try:
-        print(decrypt(private_key, user_password.encode('utf-8')))
+        print(decrypt(private_key, base64.b64decode(user_password)))
     except Exception:
         print('decrypt error')
 

@@ -21,5 +21,6 @@ class User(db.Document):
     @property
     def json(self):
         return {
-            'name': self.user_name
+            'name': self.user_name,
+            'account': self.user_account
         }

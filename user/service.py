@@ -23,13 +23,20 @@ def register():
     except Exception:
         print('decrypt error')
 
+
+
+    response = {}
     if not user_name or not user_account or not user_password:
-        return 'Missing parameters'
+        response['code'] = 2
+        response['info'] = 'Missing parameters'
+        return json.dumps(response)
 
     try:
-        a =   User.objects.get(user_account=user_account)
-        print(a.user_account)
-        return 'user exist'
+        User.objects.get(user_account=user_account)
+        response['code'] = 2
+        response['data'] = {"d": '1'}
+        response['info'] = 'User exist'
+        return json.dumps(response)
     except User.DoesNotExist:
         pass
 
@@ -41,8 +48,13 @@ def register():
              update_by=user_name,
              update_time=datetime.now())
     u.save()
+#    print(u.json)
 
-    return 'name: {0}, account: {1}, password: {2}'.format(user_name, user_account, user_password)
+
+    response['code'] = 200
+    response['data'] = u.json
+    response['info'] = 'success'
+    return json.dumps(response)
 
 
 

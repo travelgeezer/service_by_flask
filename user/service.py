@@ -3,7 +3,7 @@
 import json
 import base64
 from datetime import datetime
-from .utils import decrypt, private_key, public_key
+from .utils import decrypt_rsa, private_key, public_key
 from flask import Blueprint, request
 from flask_mongoengine.wtf import model_form
 from .models import User
@@ -19,11 +19,9 @@ def register():
     user_account = data.get('account')
     user_password = data.get('password')
     try:
-        print(decrypt(private_key, base64.b64decode(user_password)))
+        print(decrypt_rsa(private_key, base64.b64decode(user_password)))
     except Exception:
         print('decrypt error')
-
-
 
     response = {}
     if not user_name or not user_account or not user_password:
@@ -48,7 +46,6 @@ def register():
              update_by=user_name,
              update_time=datetime.now())
     u.save()
-#    print(u.json)
 
 
     response['code'] = 200

@@ -20,7 +20,7 @@ with open(pkcs8_rsa_private_key_2048_path, 'r') as f:
 public_key = pub
 private_key = pri
 
-def encrypt(pub, message):
+def encrypt_rsa(pub, message):
     ret = b''
     input_text = message[:128]
     while input_text:
@@ -31,7 +31,7 @@ def encrypt(pub, message):
         input_text = message[:128]
     return ret
 
-def decrypt(pri, cipher_text):
+def decrypt_rsa(pri, cipher_text):
     key = RSA.importKey(pri)
     dsize = SHA.digest_size
     input_text = cipher_text[:256]
@@ -47,5 +47,5 @@ def decrypt(pri, cipher_text):
 
 
 def test_crypt():
-    msg = decrypt(pri, encrypt(pub, 'qqq123'))
+    msg = decrypt_rsa(pri, encrypt_rsa(pub, 'qqq123'))
     print(msg)

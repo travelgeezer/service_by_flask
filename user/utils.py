@@ -21,19 +21,19 @@ with open(pkcs8_rsa_private_key_2048_path, 'r') as f:
 public_key = pub
 private_key = pri
 
-
 def encrypt_aes(key, message):
-    cipher = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+    cipher = AES.new(key, AES.MODE_CBC, "fedcba9876543210")
     BS = AES.block_size
     pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
     cipher_text = cipher.encrypt(pad(message))
     return base64.b64encode(cipher_text)
 
 def decrypt_aes(key, cipher_text):
-    cipher = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+    cipher = AES.new(key, AES.MODE_CBC, "fedcba9876543210")
     unpad = lambda s : s[0:-ord(s[-1])]
     result = base64.b64decode(cipher_text)
-    return unpad(cipher.decrypt(result).decode('utf-8'))
+    return  unpad(cipher.decrypt(result).decode('utf-8'))
+
 
 def encrypt_rsa(pub, message):
     ret = b''

@@ -3,7 +3,7 @@
 import json
 import base64
 from flask import Blueprint, request
-from user.utils import decrypt_rsa, private_key
+from user.utils import decrypt_rsa, private_key, decrypt_aes
 
 response_data_format = Blueprint('response_data_format', __name__)
 
@@ -23,13 +23,12 @@ def data_format(data):
 def test_rsa():
     data = request.get_json()
     key = data.get('key')
-    print(key)
+    message = data.get('message')
     cipher = decrypt_rsa(private_key, base64.b64decode(key))
-    print('cipher: ', cipher)
-
+    text = decrypt_aes(cipher, message)
     data = {
         "code": 200,
-        "data": cipher,
+        "data": text,
         "info": "success"
     }
 

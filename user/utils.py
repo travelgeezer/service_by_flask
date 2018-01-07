@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import base64
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA
@@ -19,6 +20,20 @@ with open(pkcs8_rsa_private_key_2048_path, 'r') as f:
 
 public_key = pub
 private_key = pri
+
+
+def encrypt_aes(key, message):
+    cipher = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+    BS = AES.block_size
+    pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
+    cipher_text = cipher.encrypt(pad(message))
+    return base64.b64encode(cipher_text)
+
+def decrypt_aes(key, cipher_text):
+    cipher = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+    unpad = lambda s : s[0:-ord(s[-1])]
+    result = base64.b64decode(cipher_text)
+    return unpad(cipher.decrypt(result).decode('utf-8'))
 
 def encrypt_rsa(pub, message):
     ret = b''
@@ -46,6 +61,13 @@ def decrypt_rsa(pri, cipher_text):
     return ret
 
 
-def test_crypt():
+def test_crypt_rsa():
     msg = decrypt_rsa(pri, encrypt_rsa(pub, 'qqq123'))
     print(msg)
+
+def test_crypt_aes():
+    key = '0123456789abcdef'
+    cipher_text= encrypt_aes(key, 'qqq123')
+    print(cipher_text)
+    result = decrypt_aes(key, cipher_text)
+    print(result)

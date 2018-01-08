@@ -2,4 +2,5 @@
 
 # TODO
 
-- Encryption(RSA+AES)
+- ~Encryption(RSA+AES)~
+- TOKEN verify

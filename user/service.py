@@ -3,7 +3,7 @@
 import json
 import base64
 from datetime import datetime
-from .utils import decrypt_rsa, private_key, public_key
+from .utils import decrypt_rsa, decrypt_aes, encrypt_aes, private_key, public_key
 from flask import Blueprint, request
 from flask_mongoengine.wtf import model_form
 from .models import User
@@ -15,15 +15,28 @@ user = Blueprint('user', __name__)
 @user.route('/api/v1/register', methods=['POST'])
 def register():
     data = request.get_json()
+    key = data.get('key')
     user_name = data.get('name')
     user_account = data.get('account')
     user_password = data.get('password')
-    try:
-        print(decrypt_rsa(private_key, base64.b64decode(user_password)))
-    except Exception:
-        print('decrypt error')
 
     response = {}
+    aes_key = ''
+    try:
+        print(key)
+        print(user_password)
+        aes_key = decrypt_rsa(private_key, base64.b64decode(key))
+        print('aes key:', aes_key)
+        password = decrypt_aes(aes_key, user_password)
+        print('passwrod:', password)
+    except Exception as e:
+        print(e)
+        response['code'] = 2
+        response['info'] = 'decrypt error'
+        return json.dumps(response)
+
+    print('key ---', aes_key)
+
     if not user_name or not user_account or not user_password:
         response['code'] = 2
         response['info'] = 'Missing parameters'
@@ -31,9 +44,11 @@ def register():
 
     try:
         User.objects.get(user_account=user_account)
+        info = encrypt_aes(aes_key, 'User exist')
+        print(info)
         response['code'] = 2
         response['data'] = {"d": '1'}
-        response['info'] = 'User exist'
+        response['info'] = info.decode('utf-8')
         return json.dumps(response)
     except User.DoesNotExist:
         pass

@@ -16,7 +16,6 @@ class User(db.Document):
         return bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify(self, password):
-        print('self.password: {}, password: {}'.format(self.user_password, password))
         return bcrypt.check_password_hash(self.user_password, password)
 
     @property

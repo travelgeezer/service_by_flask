@@ -12,7 +12,7 @@ UserForm = model_form(User)
 
 user = Blueprint('user', __name__)
 
-@user.route('/api/v1/register', methods=['POST'])
+@user.route('/api/v1/register/', methods=['POST'])
 def register():
     data = request.get_json()
     key = data.get('key')
@@ -22,20 +22,6 @@ def register():
 
     response = {}
     aes_key = ''
-    try:
-        print(key)
-        print(user_password)
-        aes_key = decrypt_rsa(private_key, base64.b64decode(key))
-        print('aes key:', aes_key)
-        password = decrypt_aes(aes_key, user_password)
-        print('passwrod:', password)
-    except Exception as e:
-        print(e)
-        response['code'] = 2
-        response['info'] = 'decrypt error'
-        return json.dumps(response)
-
-    print('key ---', aes_key)
 
     if not user_name or not user_account or not user_password:
         response['code'] = 2
@@ -47,30 +33,85 @@ def register():
         info = encrypt_aes(aes_key, 'User exist')
         print(info)
         response['code'] = 2
-        response['data'] = {"d": '1'}
         response['info'] = info.decode('utf-8')
         return json.dumps(response)
     except User.DoesNotExist:
         pass
 
-    u = User(user_name=user_name,
-             user_account=user_account,
-             user_password=User.encryption(user_password),
-             create_by=user_name,
-             create_time= datetime.now(),
-             update_by=user_name,
-             update_time=datetime.now())
-    u.save()
+
+    try:
+        print(key)
+        print(user_password)
+        aes_key = decrypt_rsa(private_key, base64.b64decode(key))
+        print('aes key:', aes_key)
+        password = decrypt_aes(aes_key, user_password)
+        print('passwrod:', password)
+        print('key ---', aes_key)
+
+        u = User(user_name=user_name,
+                 user_account=user_account,
+                 user_password=User.encryption(password),
+                 create_by=user_name,
+                 create_time= datetime.now(),
+                 update_by=user_name,
+                 update_time=datetime.now())
+        u.save()
+
+        response['code'] = 200
+        response['data'] = u.json
+        response['info'] = 'success'
+        return json.dumps(response)
+
+    except Exception as e:
+        print(e)
+        response['code'] = 2
+        response['info'] = 'decrypt error'
+        return json.dumps(response)
+
+@user.route('/api/v1/login/', methods=['POST'])
+def login():
+    data = request.get_json()
+
+    key = data.get('key')
+    user_account = data.get('account')
+    user_password = data.get('password')
+
+    response = {}
+    if not key or not user_account or not user_password:
+        response['code'] = 2
+        response['info'] = 'Missing parameters'
+
+    try:
+        user = User.objects.get(user_account=user_account)
+
+        try:
+            print('key: ', key)
+            aes_key = decrypt_rsa(private_key, base64.b64decode(key))
+            print('aes_key:', aes_key)
+            print('password: ', user_password)
+            password = decrypt_aes(aes_key, user_password)
+            if user.verify(password):
+                response['code'] = 200
+                response['data'] = user.json
+                response['info'] = 'login success!'
+                return json.dumps(response)
+            else:
+                response['code'] = 2
+                response['info'] = 'password error'
+                return json.dumps(response)
+        except Exception as e:
+            print(e)
+            response['code'] = 2
+            response['info'] = 'decrypt error'
+            return json.dumps(response)
+    except User.DoseNotExist as e:
+        print(e)
+        response['code'] = 2
+        response['info'] = 'User not exist'
+        return json.dumps(response)
 
 
-    response['code'] = 200
-    response['data'] = u.json
-    response['info'] = 'success'
-    return json.dumps(response)
-
-
-
-@user.route('/api/v1/user', methods=['POST'])
+@user.route('/api/v1/user/', methods=['POST'])
 def user_info():
     data = request.get_json()
 
@@ -81,7 +122,7 @@ def user_info():
         return 'Not found user'
 
 
-@user.route('/api/v1/users')
+@user.route('/api/v1/users/')
 def users():
     users  = User.objects.all()
     result = [o.json for o in users]
